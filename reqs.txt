@@ -1,0 +1,41 @@
+REQUIREMENTS:
+
+OBJECTIVES:
+- DIFFERENT INITIAL VIALS: 4 different types. 3 known. different sizes and
+extraction methods
+- WHICH TYPE OF LIQUIDS ARE WE HANDLING? DANGER LEVEL TO HUMANS? No
+- WAYS OF EXTRACTION 2 are decapped and
+syringed out, while the last one needs pipetting 
+- HOW ARE THE FINAL CONTAINERS? Only 1 type of container
+- HOW SHOULD IT BE TRIGGERED? DO I NEED A FRONT-END CONNECTOR? Yes, currently
+a UI shows how many batches and syringes are to be used by the robot
+- INTEGRABILITY AND FLEXIBILITY TO CHANGING ENVIRONMENTS? Not right now 
+with the current set up
+
+SET-UP:
+- WHAT IS THE LAYOUT? RESTRICTIONS AND CONSTRAINTS? One fixed trey to put 
+syringes inside one by one (needs improvements) and the containers in
+another fixed trey. A decapping / disposing station is used to unveil the 
+tip of the syringe while the bottom gets pushed to pour the liquid inside of 
+the container
+- FIXED HANDOVER POSITION? Yes
+
+DATA-READING:
+- WHERE IS THE INITIAL DATA STORED? Currently, no data relating each container
+too its corresponding syringe is in use
+- WHERE SHOULD THE FINAL DATA BE STORED?
+- DATA MANIPULATION?
+- INTEGRATION WITH ANY OTHER DATA? Results from the observation could be stored 
+next to the ID of the container
+
+No good way of adding value, the qr codes can be read but each container still needs to be
+analyzed and create their individual records in the limbs system
+
+TECHNICAL:
+- MARGIN OF ERROR? Little no none, avoid leakage from pipetting (see papers, pre-wetting)
+- ROBOT PRECISION? Ok
+- CAN I USE TWO ROBOTIC ARMS?
+- DIFFERENT GRIPPERS FOR HOLDING VIAL
+- DE-CAPPING ATTACHMENT? Currently one in use outside of the robotic solution,
+needs integration into the project
+- INTEGRATION WITH SiLA. Creation of a digital twin.
