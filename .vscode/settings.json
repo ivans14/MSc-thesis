@@ -1,0 +1,3 @@
+{
+  "python.analysis.extraPaths": ["./sila_python/example_server"]
+}
