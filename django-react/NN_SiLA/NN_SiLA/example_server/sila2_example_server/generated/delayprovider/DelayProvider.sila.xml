@@ -1,0 +1,47 @@
+<Feature xmlns="http://www.sila-standard.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Category="tests" FeatureVersion="1.0" Originator="de.unigoettingen" SiLA2Version="1.0" xsi:schemaLocation="http://www.sila-standard.org https://gitlab.com/SiLA2/sila_base/raw/master/schema/FeatureDefinition.xsd">
+  <Identifier>DelayProvider</Identifier>
+  <DisplayName>Delay Provider</DisplayName>
+  <Description>Allows adding delay to calls via SiLA Client Metadata</Description>
+  <Property>
+    <Identifier>RandomNumber</Identifier>
+    <DisplayName>Random Number</DisplayName>
+    <Description>A random number</Description>
+    <Observable>No</Observable>
+    <DataType>
+      <Basic>Integer</Basic>
+    </DataType>
+  </Property>
+  <Metadata>
+    <Identifier>Delay</Identifier>
+    <DisplayName>Delay</DisplayName>
+    <Description>When receiving this metadata in the context of a call, the server should wait for the specified duration
+      before staring the requested execution</Description>
+    <DataType>
+      <Constrained>
+        <DataType>
+          <Basic>Integer</Basic>
+        </DataType>
+        <Constraints>
+          <MinimalInclusive>0</MinimalInclusive>
+          <Unit>
+            <Label>Millisecond</Label>
+            <Factor>1</Factor>
+            <Offset>0</Offset>
+            <UnitComponent>
+              <SIUnit>Second</SIUnit>
+              <Exponent>-3</Exponent>
+            </UnitComponent>
+          </Unit>
+        </Constraints>
+      </Constrained>
+    </DataType>
+    <DefinedExecutionErrors>
+      <Identifier>DelayTooLong</Identifier>
+    </DefinedExecutionErrors>
+  </Metadata>
+  <DefinedExecutionError>
+    <Identifier>DelayTooLong</Identifier>
+    <DisplayName>Delay Too Long</DisplayName>
+    <Description>The given delay was too long</Description>
+  </DefinedExecutionError>
+</Feature>
