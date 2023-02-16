@@ -1,0 +1,127 @@
+<Feature xmlns="http://www.sila-standard.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Category="tests" FeatureVersion="1.0" Originator="de.unigoettingen" SiLA2Version="1.0" xsi:schemaLocation="http://www.sila-standard.org https://gitlab.com/SiLA2/sila_base/raw/master/schema/FeatureDefinition.xsd">
+  <Identifier>DataTypeProvider</Identifier>
+  <DisplayName>Data Type Provider</DisplayName>
+  <Description>Defines commands and properties to showcase handling of different data types</Description>
+  <DataTypeDefinition>
+    <Identifier>IntegerAlias</Identifier>
+    <DisplayName>Integer Alias</DisplayName>
+    <Description>An alias for the Integer data type</Description>
+    <DataType>
+      <Basic>Integer</Basic>
+    </DataType>
+  </DataTypeDefinition>
+  <DataTypeDefinition>
+    <Identifier>StructureType</Identifier>
+    <DisplayName>Structure Type</DisplayName>
+    <Description>A data type definition with a structure value</Description>
+    <DataType>
+      <Structure>
+        <Element>
+          <Identifier>ListOfStrings</Identifier>
+          <DisplayName>List Of Strings</DisplayName>
+          <Description>A list of string values</Description>
+          <DataType>
+            <List>
+              <DataType>
+                <Basic>String</Basic>
+              </DataType>
+            </List>
+          </DataType>
+        </Element>
+        <Element>
+          <Identifier>Boolean</Identifier>
+          <DisplayName>Boolean</DisplayName>
+          <Description>A boolean value</Description>
+          <DataType>
+            <Basic>Boolean</Basic>
+          </DataType>
+        </Element>
+      </Structure>
+    </DataType>
+  </DataTypeDefinition>
+  <Command>
+    <Identifier>ComplexCommand</Identifier>
+    <DisplayName>Complex Command</DisplayName>
+    <Description>A command with complex data types</Description>
+    <Observable>No</Observable>
+    <Parameter>
+      <Identifier>Number</Identifier>
+      <DisplayName>Number</DisplayName>
+      <Description>An aliased integer</Description>
+      <DataType>
+        <DataTypeIdentifier>IntegerAlias</DataTypeIdentifier>
+      </DataType>
+    </Parameter>
+    <Parameter>
+      <Identifier>Structure</Identifier>
+      <DisplayName>Structure</DisplayName>
+      <Description>The structure type</Description>
+      <DataType>
+        <DataTypeIdentifier>StructureType</DataTypeIdentifier>
+      </DataType>
+    </Parameter>
+    <Response>
+      <Identifier>StructureType</Identifier>
+      <DisplayName>Structure Type</DisplayName>
+      <Description>The structure type</Description>
+      <DataType>
+        <DataTypeIdentifier>StructureType</DataTypeIdentifier>
+      </DataType>
+    </Response>
+    <Response>
+      <Identifier>InlineStructure</Identifier>
+      <DisplayName>Inline Structure</DisplayName>
+      <Description>A structure defined in the response element</Description>
+      <DataType>
+        <Structure>
+          <Element>
+            <Identifier>Element1</Identifier>
+            <DisplayName>Element 1</DisplayName>
+            <Description>The first element</Description>
+            <DataType>
+              <Basic>String</Basic>
+            </DataType>
+          </Element>
+          <Element>
+            <Identifier>Element2</Identifier>
+            <DisplayName>Element 2</DisplayName>
+            <Description>The seconds element</Description>
+            <DataType>
+              <Basic>Real</Basic>
+            </DataType>
+          </Element>
+        </Structure>
+      </DataType>
+    </Response>
+  </Command>
+  <Property>
+    <Identifier>StructureProperty</Identifier>
+    <DisplayName>Structure Property</DisplayName>
+    <Description>A structure property</Description>
+    <Observable>No</Observable>
+    <DataType>
+      <Structure>
+        <Element>
+          <Identifier>Binary</Identifier>
+          <DisplayName>Binary</DisplayName>
+          <Description>A binary value</Description>
+          <DataType>
+            <Basic>Binary</Basic>
+          </DataType>
+        </Element>
+        <Element>
+          <Identifier>Dates</Identifier>
+          <DisplayName>Dates</DisplayName>
+          <Description>A list of dates</Description>
+          <DataType>
+            <List>
+              <DataType>
+                <Basic>Date</Basic>
+              </DataType>
+            </List>
+          </DataType>
+        </Element>
+      </Structure>
+    </DataType>
+  </Property>
+</Feature>

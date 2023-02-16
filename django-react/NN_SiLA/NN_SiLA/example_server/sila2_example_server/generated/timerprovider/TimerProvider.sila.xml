@@ -1,0 +1,91 @@
+<Feature xmlns="http://www.sila-standard.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Category="tests" FeatureVersion="1.0" Originator="de.unigoettingen" SiLA2Version="1.0" xsi:schemaLocation="http://www.sila-standard.org https://gitlab.com/SiLA2/sila_base/raw/master/schema/FeatureDefinition.xsd">
+  <Identifier>TimerProvider</Identifier>
+  <DisplayName>Timer Provider</DisplayName>
+  <Description>Provides a timer command and the current time</Description>
+  <Command>
+    <Identifier>Countdown</Identifier>
+    <DisplayName>Countdown</DisplayName>
+    <Description>Count down from N to 0, then return the given message and the current time</Description>
+    <Observable>Yes</Observable>
+    <Parameter>
+      <Identifier>N</Identifier>
+      <DisplayName>N</DisplayName>
+      <Description>The number from which to count down</Description>
+      <DataType>
+        <Constrained>
+          <DataType>
+            <Basic>Integer</Basic>
+          </DataType>
+          <Constraints>
+            <Unit>
+              <Label>Second</Label>
+              <Factor>1</Factor>
+              <Offset>0</Offset>
+              <UnitComponent>
+                <SIUnit>Second</SIUnit>
+                <Exponent>1</Exponent>
+              </UnitComponent>
+            </Unit>
+            <MinimalInclusive>0</MinimalInclusive>
+          </Constraints>
+        </Constrained>
+      </DataType>
+    </Parameter>
+    <Parameter>
+      <Identifier>Message</Identifier>
+      <DisplayName>Message</DisplayName>
+      <Description>The message to return on completion</Description>
+      <DataType>
+        <Basic>String</Basic>
+      </DataType>
+    </Parameter>
+    <Response>
+      <Identifier>Message</Identifier>
+      <DisplayName>Message</DisplayName>
+      <Description>The message provided as parameter</Description>
+      <DataType>
+        <Basic>String</Basic>
+      </DataType>
+    </Response>
+    <Response>
+      <Identifier>Timestamp</Identifier>
+      <DisplayName>Timestamp</DisplayName>
+      <Description>The timestamp when the countdown finished</Description>
+      <DataType>
+        <Basic>Timestamp</Basic>
+      </DataType>
+    </Response>
+    <IntermediateResponse>
+      <Identifier>CurrentNumber</Identifier>
+      <DisplayName>Current Number</DisplayName>
+      <Description>The current number</Description>
+      <DataType>
+        <Constrained>
+          <DataType>
+            <Basic>Integer</Basic>
+          </DataType>
+          <Constraints>
+            <MinimalExclusive>0</MinimalExclusive>
+          </Constraints>
+        </Constrained>
+      </DataType>
+    </IntermediateResponse>
+    <DefinedExecutionErrors>
+      <Identifier>CountdownTooLong</Identifier>
+    </DefinedExecutionErrors>
+  </Command>
+  <Property>
+    <Identifier>CurrentTime</Identifier>
+    <DisplayName>Current Time</DisplayName>
+    <Description>The current time</Description>
+    <Observable>Yes</Observable>
+    <DataType>
+      <Basic>Time</Basic>
+    </DataType>
+  </Property>
+  <DefinedExecutionError>
+    <Identifier>CountdownTooLong</Identifier>
+    <DisplayName>Countdown Too Long</DisplayName>
+    <Description>The provided countdown duration was too large</Description>
+  </DefinedExecutionError>
+</Feature>

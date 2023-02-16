@@ -1,5 +1,24 @@
 REQUIREMENTS:
 
+Read into lab automation design in general: Keywords
+Laboratory automation
+
+Gantt chart with description and project descr
+
+Contact responsible people for Tahmina's project﻿﻿
+Talk to Hanne about specific requirements
+Try to establish constant communication 
+Ask Tahmina for electric pipettes to test
+SILA:
+
+Generate own feature for sila
+Download universal client
+Create script for own client﻿﻿
+
+
+
+
+
 OBJECTIVES:
 - DIFFERENT INITIAL VIALS: 4 different types. 3 known. different sizes and
 extraction methods
