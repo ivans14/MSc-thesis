@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+import "SiLAFramework.proto";
+
+package sila2.org.silastandard.core.connectioncontroller.v1;
+
+/* The Connection Controller feature provides a command to trigger the connection to a UR Robot via socket connection. If the connection has already been established a SocketInUse error will be raised */
+service ConnectionController {
+  /* Try to establish a socket connection to the UR Robot */
+  rpc ConnectToRobot (sila2.org.silastandard.core.connectioncontroller.v1.ConnectToRobot_Parameters) returns (sila2.org.silastandard.core.connectioncontroller.v1.ConnectToRobot_Responses) {}
+  /* Gets the connection status of the UR Robot */
+  rpc Subscribe_ConnectionStatus (sila2.org.silastandard.core.connectioncontroller.v1.Subscribe_ConnectionStatus_Parameters) returns (stream sila2.org.silastandard.core.connectioncontroller.v1.Subscribe_ConnectionStatus_Responses) {}
+}
+
+/* Parameters for ConnectToRobot */
+message ConnectToRobot_Parameters {
+}
+
+/* Responses of ConnectToRobot */
+message ConnectToRobot_Responses {
+  sila2.org.silastandard.Boolean Status = 1;  /* The status of the connection */
+}
+
+/* Parameters for ConnectionStatus */
+message Subscribe_ConnectionStatus_Parameters {
+}
+
+/* Responses of ConnectionStatus */
+message Subscribe_ConnectionStatus_Responses {
+  sila2.org.silastandard.Boolean ConnectionStatus = 1;  /* Gets the connection status of the UR Robot */
+}

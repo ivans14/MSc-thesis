@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+import "SiLAFramework.proto";
+
+package sila2.de.unigreifswald.biochemie.scheduling.robotexample.v1;
+
+/* An Example */
+service RobotExample {
+  /* Makes the robot go to the home position */
+  rpc GoToHomePosition (sila2.de.unigreifswald.biochemie.scheduling.robotexample.v1.GoToHomePosition_Parameters) returns (sila2.de.unigreifswald.biochemie.scheduling.robotexample.v1.GoToHomePosition_Responses) {}
+  /* Gets the battery state */
+  rpc Get_BatteryState (sila2.de.unigreifswald.biochemie.scheduling.robotexample.v1.Get_BatteryState_Parameters) returns (sila2.de.unigreifswald.biochemie.scheduling.robotexample.v1.Get_BatteryState_Responses) {}
+}
+
+/* Parameters for GoToHomePosition */
+message GoToHomePosition_Parameters {
+}
+
+/* Responses of GoToHomePosition */
+message GoToHomePosition_Responses {
+}
+
+/* Parameters for BatteryState */
+message Get_BatteryState_Parameters {
+}
+
+/* Responses of BatteryState */
+message Get_BatteryState_Responses {
+  sila2.org.silastandard.Real BatteryState = 1;  /* Gets the battery state */
+}

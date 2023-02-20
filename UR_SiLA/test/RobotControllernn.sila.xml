@@ -1,0 +1,20 @@
+<Feature xmlns="http://www.sila-standard.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Category="scheduling" FeatureVersion="1.0" MaturityLevel="Draft" Originator="de.unigreifswald.biochemie" SiLA2Version="1.0" xsi:schemaLocation="http://www.sila-standard.org https://gitlab.com/SiLA2/sila_base/raw/master/schema/FeatureDefinition.xsd">
+  <Identifier>RobotExample</Identifier>
+  <DisplayName>Robot Example</DisplayName>
+  <Description>An Example</Description>
+  <Command>
+    <Identifier>GoToHomePosition</Identifier>
+    <DisplayName>Go To Home Position</DisplayName>
+    <Description>Makes the robot go to the home position</Description>
+    <Observable>No</Observable>
+  </Command>
+  <Property>
+    <Identifier>BatteryState</Identifier>
+    <DisplayName>Battery State</DisplayName>
+    <Description>Gets the battery state</Description>
+    <Observable>No</Observable>
+    <DataType>
+      <Basic>Real</Basic>
+    </DataType>
+  </Property>
+</Feature>
