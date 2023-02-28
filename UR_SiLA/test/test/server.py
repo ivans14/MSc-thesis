@@ -28,7 +28,7 @@ class Server(SilaServer):
         host : Any = 2
         port : int = 2
         self.robot_interface = UR_Robot(host = host, port = port)
-
+        
         self.connectioncontroller = ConnectionControllerImpl(self)
         self.set_feature_implementation(ConnectionControllerFeature, self.connectioncontroller)
 
