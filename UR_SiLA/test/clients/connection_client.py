@@ -7,7 +7,7 @@ def main():
     client = Client("127.0.0.1", 50052, root_certs=certificate_authority)
 
     print("hello")
-
+    client.ConnectionController.ConnectToRobot()
     # get current value
     connection_status = client.ConnectionController.ConnectionStatus.get()
     print("Connection status:", connection_status)
@@ -20,7 +20,7 @@ def main():
     connection_subscription.add_callback(print)
 
     # wait
-    time.sleep(3)
+    time.sleep(10)
 
     # subscriptions stay active until it is explicitly cancelled:
     connection_subscription.cancel()
@@ -28,6 +28,7 @@ def main():
 
     # received values are iterable:
     print("All received values:", list(connection_subscription))
+    client.RobotExample.GoToHomePosition()
 
 
 if __name__ == "__main__":

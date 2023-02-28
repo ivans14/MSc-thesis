@@ -9,12 +9,36 @@ Contact responsible people for Tahmina's project﻿﻿
 Talk to Hanne about specific requirements
 Try to establish constant communication 
 Ask Tahmina for electric pipettes to test
+
+Go down and talk to hans? to see what he has done
+
+
+Diego:
+Short presentation on my development
+Create document for stakeholders input
+
+
 SILA:
 
 Generate own feature for sila
 Download universal client
-Create script for own client﻿﻿
+Create script for own client
 
+
+DTU:
+
+Document everything, further work for digital twin (research)
+Gantt chart references in my project plan
+
+My SiLA server:
+Features: 
+	- Connect to robot
+	- Move robot
+	- Read bar code
+
+
+Project plan:
+Design / order components section should be expanded to include SW / HW / Electrical
 
 
 
@@ -48,7 +72,7 @@ too its corresponding syringe is in use
 next to the ID of the container
 
 No good way of adding value, the qr codes can be read but each container still needs to be
-analyzed and create their individual records in the limbs system
+analyzed and create their individual records in the lims system
 
 TECHNICAL:
 - MARGIN OF ERROR? Little no none, avoid leakage from pipetting (see papers, pre-wetting)

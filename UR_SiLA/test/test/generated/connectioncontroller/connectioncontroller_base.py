@@ -27,7 +27,7 @@ class ConnectionControllerBase(FeatureImplementationBase, ABC):
 
         """
         super().__init__(parent_server=parent_server)
-
+        self._ConnectionStatus_current_value = bool
         self._ConnectionStatus_producer_queue = Queue()
 
     def update_ConnectionStatus(self, ConnectionStatus: bool, queue: Optional[Queue[bool]] = None) -> None:
@@ -38,9 +38,12 @@ class ConnectionControllerBase(FeatureImplementationBase, ABC):
 
         :param queue: The queue to send updates to. If None, the default Queue will be used.
         """
+        print(ConnectionStatus)
         if queue is None:
+            if self._ConnectionStatus_current_value == True and ConnectionStatus == False:
+                print("lost connection to the robot")
             queue = self._ConnectionStatus_producer_queue
-            self._ConnectionStatus_current_value = ConnectionStatus
+            self._ConnectionStatus_current_value = ConnectionStatus            
         queue.put(ConnectionStatus)
 
     def ConnectionStatus_on_subscription(self, *, metadata: MetadataDict) -> Optional[Queue[bool]]:
