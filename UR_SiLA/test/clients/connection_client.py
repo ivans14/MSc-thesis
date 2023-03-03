@@ -20,7 +20,7 @@ def main():
     connection_subscription.add_callback(print)
 
     # wait
-    time.sleep(10)
+    time.sleep(2)
 
     # subscriptions stay active until it is explicitly cancelled:
     connection_subscription.cancel()
@@ -29,6 +29,7 @@ def main():
     # received values are iterable:
     print("All received values:", list(connection_subscription))
     client.RobotExample.GoToHomePosition()
+    time.sleep(30)
 
 
 if __name__ == "__main__":

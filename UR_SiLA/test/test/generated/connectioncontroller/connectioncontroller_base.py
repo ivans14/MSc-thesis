@@ -38,7 +38,6 @@ class ConnectionControllerBase(FeatureImplementationBase, ABC):
 
         :param queue: The queue to send updates to. If None, the default Queue will be used.
         """
-        print(ConnectionStatus)
         if queue is None:
             if self._ConnectionStatus_current_value == True and ConnectionStatus == False:
                 print("lost connection to the robot")
