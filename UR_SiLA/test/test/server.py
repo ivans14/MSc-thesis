@@ -25,8 +25,8 @@ class Server(SilaServer):
             server_uuid=server_uuid,
         )
 
-        host : Any = 2
-        port : int = 2
+        host : Any = "192.168.0.30"
+        port : int = 30004
         self.robot_interface = UR_Robot(host = host, port = port)
         
         self.connectioncontroller = ConnectionControllerImpl(self)

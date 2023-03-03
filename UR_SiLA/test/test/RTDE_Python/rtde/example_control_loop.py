@@ -1,34 +1,10 @@
-#!/usr/bin/env python
-# Copyright (c) 2016-2022, Universal Robots A/S,
-# All rights reserved.
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#    * Redistributions of source code must retain the above copyright
-#      notice, this list of conditions and the following disclaimer.
-#    * Redistributions in binary form must reproduce the above copyright
-#      notice, this list of conditions and the following disclaimer in the
-#      documentation and/or other materials provided with the distribution.
-#    * Neither the name of the Universal Robots A/S nor the names of its
-#      contributors may be used to endorse or promote products derived
-#      from this software without specific prior written permission.
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL UNIVERSAL ROBOTS A/S BE LIABLE FOR ANY
-# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+import logging
 import sys
 
-sys.path.append("..")
-import logging
-
-from ..rtde.rtde import rtde as rtde
-from ..rtde.rtde_config import rtde_config as rtde_config
+import rtde_2 as rtde
+import rtde_config as rtde_config
 
 
 # logging.basicConfig(level=logging.INFO)
@@ -49,6 +25,8 @@ watchdog_names, watchdog_types = conf.get_recipe("watchdog")
 con = rtde.RTDE(ROBOT_HOST, ROBOT_PORT)
 con.connect()
 
+print("connected")
+
 # get controller version
 con.get_controller_version()
 
@@ -58,8 +36,10 @@ setp = con.send_input_setup(setp_names, setp_types)
 watchdog = con.send_input_setup(watchdog_names, watchdog_types)
 
 # Setpoints to move the robot to
-setp1 = [-0.12, -0.43, 0.14, 0, 3.11, 0.04]
-setp2 = [-0.12, -0.51, 0.21, 0, 3.11, 0.04]
+setp1 = [-0.4104577419847799, -0.2626529489715343, 0.2972660465054066, 1.8552623321968715, 2.420037547531281, -0.014278932653435552]
+setp2 =  [-0.2646567753143876, -0.43843427581831246, 0.2897307437164788, -1.54430191234484, -2.6607790325617, 0.17527592292018854]
+
+setpoints = [setp1,setp2]
 
 setp.input_double_register_0 = 0
 setp.input_double_register_1 = 0
@@ -91,6 +71,9 @@ if not con.send_start():
 
 # control loop
 move_completed = True
+state = con.receive()
+print("inital pose",state.actual_TCP_pose)
+i = 0
 while keep_running:
     # receive the current state
     state = con.receive()
@@ -99,19 +82,24 @@ while keep_running:
         break
 
     # do something...
+    # print(state.output_int_register_0==0,not not  move_completed,
+    #       not move_completed and state.output_int_register_0 == 0)
     if move_completed and state.output_int_register_0 == 1:
+        print(i)
         move_completed = False
-        new_setp = setp1 if setp_to_list(setp) == setp2 else setp2
+        new_setp = setpoints[i]
         list_to_setp(setp, new_setp)
         print("New pose = " + str(new_setp))
         # send new setpoint
         con.send(setp)
         watchdog.input_int_register_0 = 1
+        i = 1 if i==0 else 0
     elif not move_completed and state.output_int_register_0 == 0:
-        print("Move to confirmed pose = " + str(state.target_q))
+        print("Move to confirmed pose = " + str(state.target_TCP_pose))
         move_completed = True
         watchdog.input_int_register_0 = 0
 
+    # print("e")
     # kick watchdog
     con.send(watchdog)
 

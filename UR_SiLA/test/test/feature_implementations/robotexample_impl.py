@@ -19,4 +19,5 @@ class RobotExampleImpl(RobotExampleBase):
         raise NotImplementedError  # TODO
 
     def GoToHomePosition(self, *, metadata: MetadataDict) -> GoToHomePosition_Responses:
-        self.parent_server.robot_interface.move([1,2,3,4,5,6])
+        print("a")
+        self.parent_server.robot_interface.move()
