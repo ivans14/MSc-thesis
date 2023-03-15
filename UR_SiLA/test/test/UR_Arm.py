@@ -7,7 +7,6 @@ from typing import Any
 import logging
 import sys
 from pathlib import Path
-
 class RobotInterface(ABC):
     def __init__(self) -> None:
         pass

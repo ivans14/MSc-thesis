@@ -11,7 +11,7 @@ import rtde_config as rtde_config
 
 ROBOT_HOST = "192.168.0.30"
 ROBOT_PORT = 30004
-config_filename = "control_loop_configuration.xml"
+config_filename = "C:/Users/IVSN/Desktop/MSc-thesis/UR_SiLA/test/test/control_loop_configuration.xml"
 
 keep_running = True
 
