@@ -1,5 +1,5 @@
 [project]
-name = "UR_Server"
+name = "UR_SiLA"
 version = "0.0.0"
 requires-python = ">=3.7"
 dependencies = [
@@ -12,10 +12,10 @@ requires = ["setuptools>=0.61.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["UR_Server*"]
+include = ["UR_SiLA*"]
 
 [tool.setuptools.package-data]
-"UR_Server.generated" = [
+"UR_SiLA.generated" = [
     "*/*.sila.xml",
     "*/*.proto",
 ]

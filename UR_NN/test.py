@@ -1,3 +1,0 @@
-import urx
-
-urx.Robot()
