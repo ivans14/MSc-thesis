@@ -13,13 +13,17 @@ from UR_Arm_Abs import URRobotAbs
 
 HOME_POSE = np.array([-0.15285, -0.25362, 0.33395, 2.404, 2.420, -2.432])
 
-SYR_DECAP_POSE = np.array([-0.2024, -0.35907, 0.1809, 0, -1.53, 0])
+SYR_DECAP_POSE = np.array([-0.14811, -0.372, 0.2420+0.06, 0.176, -1.518, 0.108])
 
 PEN_DECAP_POSE = np.array([-0.22329, -0.3734, 0.21731, 2.377, 2.420, -2.382])
 
-offset_moveL = np.array([0,-0.02,0,0,0,0])
-initial_target_syringe = [0.18865, -0.28095, 0.12454, 0.927, -1.365, 0.92]
-initial_target = [0.18865, -0.28095, 0.12454, 0.48, 2.377, -2.382]
+SYR_POUR_POSE = np.array([-0.41471, 0.03, 0.3, 0.176, -1.518, 0.108])
+
+PEN_POUR_POSE = np.array([-0.2024, -0.35907, 0.1809, 0, -1.53, 0])
+
+offset_moveL = np.array([0,-0.07394,0,0,0,0])
+initial_target_syringe = [0.15616, -0.25596, 0.20205, 1.076, -1.308, 1.041]
+initial_target_pen = [0.18865, -0.28095, 0.12454, 0.48, 2.377, -2.382]
 ## status
 
 IDLE = 0
@@ -35,7 +39,7 @@ class UR_Robot(URRobotAbs):
 
         self.home_pose = HOME_POSE
         self.status = DISCONNECTED
-        self.vel_c = 0.1
+        self.vel_c = 0.15
     
     def configure_robot_params(self, syr_samp: int, syr_batch: int, Lpen_samp: int,
                   Lpen_batch: int,Spen_samp: int, Spen_batch: int):
@@ -73,13 +77,13 @@ class UR_Robot(URRobotAbs):
     def check_AND_moveJ(self, pose: np.array, cartesian: bool = False):
         """ Check if pose if within safety limits and move in JointSpace. """
         if cartesian:
-            if self.rtde_c.isPoseWithinSafetyLimits(pose):
-                pose = self.rtde_c.getInverseKinematics(pose)
+            if self.connection.isPoseWithinSafetyLimits(pose):
+                pose = self.connection.getInverseKinematics(pose)
             else:
                 return False
 
-        if self.rtde_c.isJointsWithinSafetyLimits(pose):
-            self.rtde_c.moveJ(pose, self.vel_q, self.acc_q)
+        if self.connection.isJointsWithinSafetyLimits(pose):
+            self.connection.moveJ(pose, self.vel_c)
             return True
         else:
             return False
@@ -100,6 +104,9 @@ class UR_Robot(URRobotAbs):
             return False
         # print("movel to pose:",pose)
 
+
+################## MOVING FUNCTIONS #########################################
+
     
     def go_home(self):
         """Move arm to home position"""
@@ -115,10 +122,10 @@ class UR_Robot(URRobotAbs):
         self.connection.reuploadScript()
         time.sleep(0.1)
 
-    def grip_syringe(self):
-        program = "grip_syringe.urp"
-        self.select_n_play(program)
+    def grip_syringe(self, current_pos):
         print("gripping syringe")
+        offset_z = [0,0,0.15,0,0,0]
+        self.check_AND_moveL(current_pos+offset_z)
 
 
     def grip_pen(self):
@@ -130,13 +137,33 @@ class UR_Robot(URRobotAbs):
     #     pos = Ltray_poses[row,col]
 
     def move_to_decapper(self, object):
+        """move to decapper (for both syringes and pens)"""
         if isinstance(object, Syringe):
             self.check_AND_moveL(SYR_DECAP_POSE)
         else:
             self.check_AND_moveL(PEN_DECAP_POSE)
 
+    def decap_syr(self):
+        """decap syringe movement"""
+        # find actual values
+        current_pose = SYR_DECAP_POSE.copy()
+        move_down = [-0.05,0,-0.06,0,0,0]
+        move_back = [0.05,0,0,0,0,0]
+        move_right = [0,-0.008,0,0,0,0]
+        self.check_AND_moveL(current_pose+move_down)
+        current_pose += move_down
+        self.check_AND_moveL(current_pose+move_back)
+        current_pose += move_back
+        self.check_AND_moveL(current_pose+move_right)
+        self.check_AND_moveL(SYR_DECAP_POSE + move_right)
+    
+    def move_to_output(self):
+        self.check_AND_moveL(SYR_POUR_POSE)
+
+
     ##looping programs 
     def turn_wrist(self, pos: list, syringe: bool):
+        """turn wrist for when the first pen appears"""
         if not syringe:
             turn = np.pi/2
             curr = self.connection.getInverseKinematics(pos)
@@ -152,8 +179,12 @@ class UR_Robot(URRobotAbs):
         self.check_AND_moveL(target_row)
         print(target_col)
         self.check_AND_moveL(target_col+offset_moveL)
-        self.grip_syringe() 
+        current_pos = target_col+offset_moveL
+        self.grip_syringe(current_pos) 
         self.move_to_decapper(self.Lmat[i][j])
+        self.decap_syr()
+        self.move_to_output()
+        self.go_home()
 
     def pen_loop(self, target_row:list, target_col: list, i: int ,j: int):
         self.check_AND_moveL(target_row)
@@ -165,7 +196,7 @@ class UR_Robot(URRobotAbs):
         ##find actual values
         for i in range(len(self.Lmat)):
             for j in range(len(self.Lmat[i])):
-                target_row = initial_target_syringe.copy() if isinstance(self.Lmat[i][j],Syringe) else initial_target.copy()
+                target_row = initial_target_syringe.copy() if isinstance(self.Lmat[i][j],Syringe) else initial_target_pen.copy()
                 target_row[0] -= self.LTray.sep_y * i
                 target_col = target_row.copy()
                 time.sleep(0.1)
