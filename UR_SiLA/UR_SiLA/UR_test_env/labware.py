@@ -64,8 +64,8 @@ class STray():
         self.col : int = 4
         self.pos : tuple = (234.38, 64.75)
         self.start: tuple = (11.6, 10)
-        self.sep_x = 17.35
-        self.sep_y = 15
+        self.sep_x = 17.35 / 1000
+        self.sep_y = 15 / 1000
         self.elevation = 0
 
     def create_matrix(self):
@@ -84,6 +84,9 @@ class Out_tray():
         self.Spen_batch= Spen_batch
         self.syr_batch = syr_batch
         self.out_samp = syr_batch + Spen_batch + Lpen_batch
+        self.sep_row = 0.023
+        self.sep_col = 0.02
+
     
     def create_matrix(self):
         matrix = [[None] * self.col for _ in range(self.row)]

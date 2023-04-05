@@ -1,6 +1,7 @@
 from typing import Tuple
 import numpy as np
 import yaml
+import math
 import time
 from rtde_control import RTDEControlInterface as RTDEControl
 from rtde_receive import RTDEReceiveInterface as RTDEReceive
@@ -13,16 +14,20 @@ from UR_Arm_Abs import URRobotAbs
 
 HOME_POSE = np.array([-0.15285, -0.25362, 0.33395, 2.404, 2.420, -2.432])
 
-SYR_DECAP_POSE = np.array([-0.14811, -0.372, 0.2420+0.06, 0.176, -1.518, 0.108])
+SYR_DECAP_POSE = np.array([-0.14811, -0.3699, 0.2420+0.060-0.042, 0.176, -1.518, 0.108])
+
+SYR_POUR_POSE = np.array([-0.36664, -0.0155, 0.3, 0.176, -1.518, 0.108])
+SYR_POUR_POSE2 = np.array([-0.36664, -0.004, 0.22, 0.545, 4.711, -0.48])
+POUR_ANGLE = [0.002, 0.0148, 0, 0.369, 6.22, -0.588]
+# POUR_ANGLE = [0, 0.0151, 0, 0.369, 6.22, -0.588]
+z_pour_syr= 0.222
 
 PEN_DECAP_POSE = np.array([-0.22329, -0.3734, 0.21731, 2.377, 2.420, -2.382])
 
-SYR_POUR_POSE = np.array([-0.41471, 0.03, 0.3, 0.176, -1.518, 0.108])
-
-PEN_POUR_POSE = np.array([-0.2024, -0.35907, 0.1809, 0, -1.53, 0])
+PEN_POUR_POSE = np.array([-0.41471, 0.03, 0.4, 0.176, -1.518, 0.108])
 
 offset_moveL = np.array([0,-0.07394,0,0,0,0])
-initial_target_syringe = [0.15616, -0.25596, 0.20205, 1.076, -1.308, 1.041]
+initial_target_syringe = [0.15616, -0.25596, 0.20205-0.042, 1.076, -1.308, 1.041]
 initial_target_pen = [0.18865, -0.28095, 0.12454, 0.48, 2.377, -2.382]
 ## status
 
@@ -39,7 +44,7 @@ class UR_Robot(URRobotAbs):
 
         self.home_pose = HOME_POSE
         self.status = DISCONNECTED
-        self.vel_c = 0.15
+        self.vel_c = 0.1
     
     def configure_robot_params(self, syr_samp: int, syr_batch: int, Lpen_samp: int,
                   Lpen_batch: int,Spen_samp: int, Spen_batch: int):
@@ -101,6 +106,7 @@ class UR_Robot(URRobotAbs):
             self.connection.moveL(pose, self.vel_c)
             return True
         else:
+            print("not safe")
             return False
         # print("movel to pose:",pose)
 
@@ -112,26 +118,41 @@ class UR_Robot(URRobotAbs):
         """Move arm to home position"""
         self.check_AND_moveL(self.home_pose)
 
-    def select_n_play(self, program: str):
+    def select_n_play(self, program: str, execution_time: int):
         """laod and play program"""
         self.dashboard.loadURP(program)
-        self.dashboard.play()
+        try:
+            self.dashboard.play()
+        except:
+            print("error:trying again")
+            time.sleep(1)
+            self.dashboard.play()
         print(f"[INFO]: Executing {program}. ")
-        time.sleep(4)
+        time.sleep(execution_time)
         self.dashboard.stop()
         self.connection.reuploadScript()
-        time.sleep(0.1)
+        time.sleep(0.2)
 
     def grip_syringe(self, current_pos):
         print("gripping syringe")
         offset_z = [0,0,0.15,0,0,0]
         self.check_AND_moveL(current_pos+offset_z)
 
+    def pour_syringe(self):
+        program = "pour_syringe.urp"
+        print("pouring syringe")
+        self.select_n_play(program,10)   
+        print("pouring syringe")
+
 
     def grip_pen(self):
         program = "grip_syringe.urp"
         self.select_n_play(program)   
         print("gripping pen")
+
+    def reset_fingers(self):
+        program = "reset_fingers.urp"
+        self.select_n_play(program,5) 
 
     # def move_to_syr_index(self, row, col):
     #     pos = Ltray_poses[row,col]
@@ -147,43 +168,68 @@ class UR_Robot(URRobotAbs):
         """decap syringe movement"""
         # find actual values
         current_pose = SYR_DECAP_POSE.copy()
-        move_down = [-0.05,0,-0.06,0,0,0]
-        move_back = [0.05,0,0,0,0,0]
+        move_down = [-0.05,0,-0.055,0,0,0]
+        move_back = [0.043,0,0,0,0,0]
         move_right = [0,-0.008,0,0,0,0]
         self.check_AND_moveL(current_pose+move_down)
         current_pose += move_down
-        self.check_AND_moveL(current_pose+move_back)
+        print(current_pose)
+        # self.check_AND_moveL(current_pose+move_back)
+        self.connection.moveL(current_pose+move_back,0.04)
         current_pose += move_back
         self.check_AND_moveL(current_pose+move_right)
         self.check_AND_moveL(SYR_DECAP_POSE + move_right)
     
-    def move_to_output(self):
+    def move_to_output_syr(self, i):
         self.check_AND_moveL(SYR_POUR_POSE)
+        row, column = divmod(i//3, 3)
+        new_pos = SYR_POUR_POSE.copy() + [column*self.OutTray.sep_col, 
+                                   row*self.OutTray.sep_row,0,0,0,0]
+        self.check_AND_moveL(new_pos)
+        new_pos += [0,0,-0.08,0,0,0]
+        self.check_AND_moveL(new_pos)
+        self.check_AND_moveL(new_pos + POUR_ANGLE)
+    
+    def dispose_syringe(self):
+        self.check_AND_moveL(SYR_DECAP_POSE)
+        current_pose = SYR_DECAP_POSE.copy()
+        move_down = [-0.05,0,-0.09,0,0,0]
+        move_right = [0,-0.01,0,0,0,0]
+        move_back = [0.075,0,0,0,0,0]
+        self.check_AND_moveL(current_pose+move_down)
+        current_pose += move_down
+        self.check_AND_moveL(current_pose+move_right)
+        current_pose += move_right
+        self.check_AND_moveL(current_pose+move_back)
+        self.check_AND_moveL(SYR_DECAP_POSE + move_back)
 
 
     ##looping programs 
-    def turn_wrist(self, pos: list, syringe: bool):
+    def turn_wrist(self,deg: int, pos: list):
         """turn wrist for when the first pen appears"""
-        if not syringe:
-            turn = np.pi/2
-            curr = self.connection.getInverseKinematics(pos)
-            curr[-1] += turn
-            self.connection.moveJ(curr)
-            time.sleep(0.5)
-            return self.receive.getActualTCPPose()
-        return self.receive.getActualTCPPose()
+        turn = math.radians(deg)
+        print("aaaa")
+        curr = self.connection.getInverseKinematics(pos)
+        curr[-1] += turn
+        self.connection.moveJ(curr)
+        time.sleep(0.5)
+        # return self.receive.getActualTCPPose()
 
 
 
     def syringe_loop(self, target_row:list, target_col: list, i: int ,j: int):
-        self.check_AND_moveL(target_row)
-        print(target_col)
-        self.check_AND_moveL(target_col+offset_moveL)
-        current_pos = target_col+offset_moveL
-        self.grip_syringe(current_pos) 
-        self.move_to_decapper(self.Lmat[i][j])
-        self.decap_syr()
-        self.move_to_output()
+        # self.check_AND_moveL(target_row)
+        # print(target_col)
+        # self.check_AND_moveL(target_col+offset_moveL)
+        # current_pos = target_col+offset_moveL
+        # self.grip_syringe(current_pos) 
+        # self.move_to_decapper(self.Lmat[i][j])
+        # self.decap_syr()
+        self.move_to_output_syr(i)
+        self.pour_syringe()
+        self.check_AND_moveL(SYR_POUR_POSE)
+        self.reset_fingers()
+        self.dispose_syringe()
         self.go_home()
 
     def pen_loop(self, target_row:list, target_col: list, i: int ,j: int):
