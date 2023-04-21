@@ -7,30 +7,11 @@ from rtde_control import RTDEControlInterface as RTDEControl
 from rtde_receive import RTDEReceiveInterface as RTDEReceive
 from dashboard_client import DashboardClient
 from labware import *
+from Poses import *
 
 from UR_Arm_Abs import URRobotAbs
 
 ##useful poses
-
-HOME_POSE = np.array([-0.15285, -0.25362, 0.33395, 2.404, 2.420, -2.432])
-
-SYR_DECAP_POSE = np.array([-0.14887, -0.37347, 0.2420+0.060-0.042, 0.176, -1.518, 0.108])
-
-SYR_POUR_POSE = np.array([-0.36664, -0.0155, 0.3, 0.176, -1.518, 0.108])
-SYR_POUR_POSE2 = np.array([-0.36664, -0.004, 0.22, 0.545, 4.711, -0.48])
-POUR_ANGLE = [0.002, 0.0148, 0, 0.369, 6.22, -0.588]
-# POUR_ANGLE = [0, 0.0151, 0, 0.369, 6.22, -0.588]
-z_pour_syr= 0.222
-
-PEN_DECAP_POSE = np.array([-0.2445, -0.37042, 0.21331, 2.377, 2.420, -2.382])
-
-PEN_POUR_POSE = np.array([-0.3638,-0.0942,0.22,0.843,-1.622,-1.579])
-PEN_POUR_POSE2 = np.array([-0.40236,-0.0585,0.215,2.404,-0.76,-2.435])
-
-offset_moveL = np.array([0,-0.01744,0,0,0,0])
-initial_target_syringe = [-0.0378, -0.26686, 0.1587, 1.19, -1.212, 1.244]
-initial_target_pen = [0.176, -0.30567+0.07394, 0.066, 0.48, 2.377, -2.382]
-## status
 
 IDLE = 0
 MOVING = 1
@@ -177,6 +158,17 @@ class UR_Robot(URRobotAbs):
         else:
             self.check_AND_moveL(PEN_DECAP_POSE)
 
+    def regrip_pen(self):
+        self.check_AND_moveL(PEN_REGRIP_POSE,vel=0.07)
+        move_down = [0,0,-0.02,0,0,0]
+        self.check_AND_moveL(PEN_REGRIP_POSE+move_down,vel=0.07)
+        self.release_pen()
+        move_down[2] -= 0.035
+        self.check_AND_moveL(PEN_REGRIP_POSE+move_down)
+        current_pose = PEN_REGRIP_POSE+move_down
+        self.grip_pen(current_pose)
+        self.check_AND_moveL(PEN_REGRIP_POSE)
+
     def decap_syr(self):
         """decap syringe movement"""
         # find actual values
@@ -226,7 +218,7 @@ class UR_Robot(URRobotAbs):
         self.release_pen()
         curr_pos += [0,0,0.08,0,0,0]
         self.check_AND_moveL(curr_pos)
-        self.turn_wrist(-90, curr_pos)
+        self.turn_wrist(90, curr_pos)
         self.closed_fingers()
         curr_pos = PEN_POUR_POSE2.copy() + [column*self.OutTray.sep_col, 
                                    row*self.OutTray.sep_row,0,0,0,0]
@@ -235,15 +227,15 @@ class UR_Robot(URRobotAbs):
         self.open_fingers()
         self.check_AND_moveL(curr_pos+[0,0,0.08,0,0,0])
         self.turn_wrist(90, curr_pos+[0,0,0.08,0,0,0])
-        curr_pos = PEN_POUR_POSE.copy() + [column*self.OutTray.sep_col, 
+        curr_pos = PEN_POUR_POSE3.copy() + [column*self.OutTray.sep_col, 
                                    row*self.OutTray.sep_row,0,0,0,0]
         self.check_AND_moveL(curr_pos)
         curr_pos += [0,0,-0.05,0,0,0]
         self.check_AND_moveL(curr_pos)
         self.grip_pen(curr_pos)
 
-        # new_pos += [0,0,-0.08,0,0,0]
-        # self.reset_fingers()
+        new_pos += [0,0,-0.08,0,0,0]
+        self.reset_fingers()
     
     def dispose_syringe(self):
         self.check_AND_moveL(SYR_DECAP_POSE)
@@ -289,13 +281,18 @@ class UR_Robot(URRobotAbs):
         # self.go_home()
 
     def pen_loop(self, target_row:list, target_col: list, i: int ,j: int):
+        self.closed_fingers()
         self.release_pen()
-        self.check_AND_moveL(target_row)
-        self.check_AND_moveL(target_col+offset_moveL)
-        current_pos = target_col+offset_moveL
+        self.turn_wrist(180,HOME_POSE)
+        self.check_AND_moveJ(target_row)
+        self.check_AND_moveL(target_col)
+        self.check_AND_moveL(target_col+offset_moveL_pen)
+        current_pos = target_col+offset_moveL_pen
         self.grip_pen(current_pos)
-        self.move_to_decapper(self.Lmat[i][j])
-        self.decap_pen()
+        self.regrip_pen()
+        # # # self.move_to_decapper(self.Lmat[i][j])
+        # # # self.decap_pen()
+        self.turn_wrist(-180,PEN_REGRIP_POSE)
         self.move_to_output_pen(i)
 
     def Ltray_loop(self):
