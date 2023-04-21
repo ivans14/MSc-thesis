@@ -22,13 +22,14 @@ POUR_ANGLE = [0.002, 0.0148, 0, 0.369, 6.22, -0.588]
 # POUR_ANGLE = [0, 0.0151, 0, 0.369, 6.22, -0.588]
 z_pour_syr= 0.222
 
-PEN_DECAP_POSE = np.array([-0.22329, -0.3734, 0.21731, 2.377, 2.420, -2.382])
+PEN_DECAP_POSE = np.array([-0.2445, -0.37042, 0.21331, 2.377, 2.420, -2.382])
 
-PEN_POUR_POSE = np.array([-0.41471, 0.03, 0.4, 0.176, -1.518, 0.108])
+PEN_POUR_POSE = np.array([-0.3638,-0.0942,0.22,0.843,-1.622,-1.579])
+PEN_POUR_POSE2 = np.array([-0.40236,-0.0585,0.215,2.404,-0.76,-2.435])
 
 offset_moveL = np.array([0,-0.07394,0,0,0,0])
 initial_target_syringe = [0.15616, -0.25596, 0.20205-0.042, 1.076, -1.308, 1.041]
-initial_target_pen = [0.18865, -0.28095, 0.12454, 0.48, 2.377, -2.382]
+initial_target_pen = [0.176, -0.30567+0.07394, 0.066, 0.48, 2.377, -2.382]
 ## status
 
 IDLE = 0
@@ -94,7 +95,7 @@ class UR_Robot(URRobotAbs):
             return False
         # print("movej to pose:",pose)
 
-    def check_AND_moveL(self, pose: np.array, joint: bool = False):
+    def check_AND_moveL(self, pose: np.array, joint: bool = False, vel = 0.1):
         """ Check if pose if within safety limits and move in LinearSpace. """
         if joint:
             if self.connection.isJointsWithinSafetyLimits(pose):
@@ -103,7 +104,8 @@ class UR_Robot(URRobotAbs):
                 return False 
            
         if self.connection.isPoseWithinSafetyLimits(pose):
-            self.connection.moveL(pose, self.vel_c)
+            print("moving", pose)
+            self.connection.moveL(pose, vel)
             return True
         else:
             print("not safe")
@@ -117,6 +119,8 @@ class UR_Robot(URRobotAbs):
     def go_home(self):
         """Move arm to home position"""
         self.check_AND_moveL(self.home_pose)
+
+    ## PENDANT-BASED
 
     def select_n_play(self, program: str, execution_time: int):
         """laod and play program"""
@@ -144,18 +148,27 @@ class UR_Robot(URRobotAbs):
         self.select_n_play(program,10)   
         print("pouring syringe")
 
-
-    def grip_pen(self):
-        program = "grip_syringe.urp"
-        self.select_n_play(program)   
+    def grip_pen(self, current_pos):
+        program = "grip_pen.urp"
+        self.select_n_play(program,10)   
         print("gripping pen")
+        offset_z = [0,0,0.15,0,0,0]
+        self.check_AND_moveL(current_pos+offset_z)
+    
+    def release_pen(self):
+        program = "release_pen.urp"
+        self.select_n_play(program,3) 
 
-    def reset_fingers(self):
-        program = "reset_fingers.urp"
+
+    def open_fingers(self):
+        program = "open_fingers.urp"
+        self.select_n_play(program,5) 
+    
+    def closed_fingers(self):
+        program = "closed_fingers.urp"
         self.select_n_play(program,5) 
 
-    # def move_to_syr_index(self, row, col):
-    #     pos = Ltray_poses[row,col]
+    ## DECAPPING
 
     def move_to_decapper(self, object):
         """move to decapper (for both syringes and pens)"""
@@ -179,6 +192,19 @@ class UR_Robot(URRobotAbs):
         current_pose += move_back
         self.check_AND_moveL(current_pose+move_right)
         self.check_AND_moveL(SYR_DECAP_POSE + move_right)
+
+    def decap_pen(self):
+        current_pose = PEN_DECAP_POSE.copy()
+        move_down = [0,0,-0.055,0,0,0]
+        self.check_AND_moveL(current_pose+move_down)
+        current_pose += move_down
+        move_out = [0,0.1,0,0,0,0]
+        self.check_AND_moveL(current_pose+move_out)
+        current_pose += move_out
+        move_up = [0,0,0.1,0,0,0]
+        self.check_AND_moveL(current_pose+move_up)
+
+    ## OUTPUT
     
     def move_to_output_syr(self, i):
         self.check_AND_moveL(SYR_POUR_POSE)
@@ -189,6 +215,36 @@ class UR_Robot(URRobotAbs):
         new_pos += [0,0,-0.08,0,0,0]
         self.check_AND_moveL(new_pos)
         self.check_AND_moveL(new_pos + POUR_ANGLE)
+    
+    def move_to_output_pen(self, i):
+        self.check_AND_moveL(PEN_POUR_POSE)
+        row, column = divmod(i//3, 3)
+        curr_pos = PEN_POUR_POSE.copy() + [column*self.OutTray.sep_col, 
+                                   row*self.OutTray.sep_row,0,0,0,0]
+        self.check_AND_moveL(curr_pos, vel=0.075)
+        curr_pos += [0,0,-0.05,0,0,0]
+        self.check_AND_moveL(curr_pos)
+        self.release_pen()
+        curr_pos += [0,0,0.08,0,0,0]
+        self.check_AND_moveL(curr_pos)
+        self.turn_wrist(-90, curr_pos)
+        self.closed_fingers()
+        curr_pos = PEN_POUR_POSE2.copy() + [column*self.OutTray.sep_col, 
+                                   row*self.OutTray.sep_row,0,0,0,0]
+        self.check_AND_moveL(curr_pos+[0,0,0.05,0,0,0])
+        self.check_AND_moveL(curr_pos)
+        self.open_fingers()
+        self.check_AND_moveL(curr_pos+[0,0,0.08,0,0,0])
+        self.turn_wrist(90, curr_pos+[0,0,0.08,0,0,0])
+        curr_pos = PEN_POUR_POSE.copy() + [column*self.OutTray.sep_col, 
+                                   row*self.OutTray.sep_row,0,0,0,0]
+        self.check_AND_moveL(curr_pos)
+        curr_pos += [0,0,-0.05,0,0,0]
+        self.check_AND_moveL(curr_pos)
+        self.grip_pen(curr_pos)
+
+        # new_pos += [0,0,-0.08,0,0,0]
+        # self.reset_fingers()
     
     def dispose_syringe(self):
         self.check_AND_moveL(SYR_DECAP_POSE)
@@ -205,7 +261,7 @@ class UR_Robot(URRobotAbs):
 
 
     ##looping programs 
-    def turn_wrist(self,deg: int, pos: list):
+    def turn_wrist(self, deg: float, pos: list):
         """turn wrist for when the first pen appears"""
         turn = math.radians(deg)
         print("aaaa")
@@ -213,30 +269,35 @@ class UR_Robot(URRobotAbs):
         curr[-1] += turn
         self.connection.moveJ(curr)
         time.sleep(0.5)
-        # return self.receive.getActualTCPPose()
+        return self.receive.getActualTCPPose()
 
 
 
     def syringe_loop(self, target_row:list, target_col: list, i: int ,j: int):
-        # self.check_AND_moveL(target_row)
-        # print(target_col)
-        # self.check_AND_moveL(target_col+offset_moveL)
-        # current_pos = target_col+offset_moveL
-        # self.grip_syringe(current_pos) 
-        # self.move_to_decapper(self.Lmat[i][j])
-        # self.decap_syr()
+        self.release_pen()
+        self.check_AND_moveL(target_row)
+        print(target_col)
+        self.check_AND_moveL(target_col+offset_moveL)
+        current_pos = target_col+offset_moveL
+        self.grip_syringe(current_pos) 
+        self.move_to_decapper(self.Lmat[i][j])
+        self.decap_syr()
         self.move_to_output_syr(i)
         self.pour_syringe()
         self.check_AND_moveL(SYR_POUR_POSE)
-        self.reset_fingers()
+        self.open_fingers()
         self.dispose_syringe()
         self.go_home()
 
     def pen_loop(self, target_row:list, target_col: list, i: int ,j: int):
+        self.release_pen()
         self.check_AND_moveL(target_row)
         self.check_AND_moveL(target_col+offset_moveL)
-        self.grip_pen()
+        current_pos = target_col+offset_moveL
+        self.grip_pen(current_pos)
         self.move_to_decapper(self.Lmat[i][j])
+        self.decap_pen()
+        self.move_to_output_pen(i)
 
     def Ltray_loop(self):
         ##find actual values
