@@ -129,9 +129,9 @@ class UR_Robot(URRobotAbs):
         self.select_n_play(program,10)   
         print("pouring syringe")
 
-    def grip_pen(self, current_pos):
+    def grip_pen(self, current_pos, time):
         program = "grip_pen.urp"
-        self.select_n_play(program,10)   
+        self.select_n_play(program,time)   
         print("gripping pen")
         offset_z = [0,0,0.15,0,0,0]
         self.check_AND_moveL(current_pos+offset_z)
@@ -166,7 +166,7 @@ class UR_Robot(URRobotAbs):
         move_down[2] -= 0.035
         self.check_AND_moveL(PEN_REGRIP_POSE+move_down)
         current_pose = PEN_REGRIP_POSE+move_down
-        self.grip_pen(current_pose)
+        self.grip_pen(current_pose,2)
         self.check_AND_moveL(PEN_REGRIP_POSE)
 
     def decap_syr(self):
@@ -232,10 +232,9 @@ class UR_Robot(URRobotAbs):
         self.check_AND_moveL(curr_pos)
         curr_pos += [0,0,-0.05,0,0,0]
         self.check_AND_moveL(curr_pos)
-        self.grip_pen(curr_pos)
-
-        new_pos += [0,0,-0.08,0,0,0]
-        self.reset_fingers()
+        self.grip_pen(curr_pos,9)
+        self.check_AND_moveL(PEN_DISPOSE_POSE)
+        self.release_pen()
     
     def dispose_syringe(self):
         self.check_AND_moveL(SYR_DECAP_POSE)
@@ -283,17 +282,18 @@ class UR_Robot(URRobotAbs):
     def pen_loop(self, target_row:list, target_col: list, i: int ,j: int):
         self.closed_fingers()
         self.release_pen()
-        self.turn_wrist(180,HOME_POSE)
+        # self.turn_wrist(180,HOME_POSE)
         self.check_AND_moveJ(target_row)
         self.check_AND_moveL(target_col)
         self.check_AND_moveL(target_col+offset_moveL_pen)
         current_pos = target_col+offset_moveL_pen
-        self.grip_pen(current_pos)
-        self.regrip_pen()
-        # # # self.move_to_decapper(self.Lmat[i][j])
-        # # # self.decap_pen()
-        self.turn_wrist(-180,PEN_REGRIP_POSE)
-        self.move_to_output_pen(i)
+        # self.grip_pen(current_pos,2)
+        # self.regrip_pen()
+        # # # # self.move_to_decapper(self.Lmat[i][j])
+        # # # # self.decap_pen()
+        # self.turn_wrist(-180,PEN_REGRIP_POSE)
+        # self.move_to_output_pen(i)
+
 
     def Ltray_loop(self):
         ##find actual values
