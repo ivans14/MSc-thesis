@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+import "SiLAFramework.proto";
+
+package sila2.org.silastandard.core.robotcontroller.v1;
+
+/* The Robot Controller feature provides commands to trigger the execution of the Penny Robot. */
+service RobotController {
+  /* Set the parameters for Penny program */
+  rpc ConfigureMainProgram (sila2.org.silastandard.core.robotcontroller.v1.ConfigureMainProgram_Parameters) returns (sila2.org.silastandard.CommandConfirmation) {}
+  /* Monitor the state of ConfigureMainProgram */
+  rpc ConfigureMainProgram_Info (sila2.org.silastandard.CommandExecutionUUID) returns (stream sila2.org.silastandard.ExecutionInfo) {}
+  /* Retrieve intermediate responses of ConfigureMainProgram */
+  rpc ConfigureMainProgram_Intermediate (sila2.org.silastandard.CommandExecutionUUID) returns (stream sila2.org.silastandard.core.robotcontroller.v1.ConfigureMainProgram_IntermediateResponses) {}
+  /* Retrieve result of ConfigureMainProgram */
+  rpc ConfigureMainProgram_Result(sila2.org.silastandard.CommandExecutionUUID) returns (sila2.org.silastandard.core.robotcontroller.v1.ConfigureMainProgram_Responses) {}
+  /* Set the parameters for Penny program */
+  rpc ConfigureDecapProgram (sila2.org.silastandard.core.robotcontroller.v1.ConfigureDecapProgram_Parameters) returns (sila2.org.silastandard.CommandConfirmation) {}
+  /* Monitor the state of ConfigureDecapProgram */
+  rpc ConfigureDecapProgram_Info (sila2.org.silastandard.CommandExecutionUUID) returns (stream sila2.org.silastandard.ExecutionInfo) {}
+  /* Retrieve intermediate responses of ConfigureDecapProgram */
+  rpc ConfigureDecapProgram_Intermediate (sila2.org.silastandard.CommandExecutionUUID) returns (stream sila2.org.silastandard.core.robotcontroller.v1.ConfigureDecapProgram_IntermediateResponses) {}
+  /* Retrieve result of ConfigureDecapProgram */
+  rpc ConfigureDecapProgram_Result(sila2.org.silastandard.CommandExecutionUUID) returns (sila2.org.silastandard.core.robotcontroller.v1.ConfigureDecapProgram_Responses) {}
+  /* Gets the connection status of the UR Robot */
+  rpc Subscribe_ConnectionStatus (sila2.org.silastandard.core.robotcontroller.v1.Subscribe_ConnectionStatus_Parameters) returns (stream sila2.org.silastandard.core.robotcontroller.v1.Subscribe_ConnectionStatus_Responses) {}
+}
+
+/* Parameters for ConfigureMainProgram */
+message ConfigureMainProgram_Parameters {
+  sila2.org.silastandard.Integer SyrSamp = 1;  /* Sets the number of syringe samples */
+  sila2.org.silastandard.Integer SyrBatch = 2;  /* Sets the number of syringe batches */
+  sila2.org.silastandard.Integer LPenSamp = 3;  /* Sets the number of large penfill samples */
+  sila2.org.silastandard.Integer LPenBatch = 4;  /* Sets the number of large penfill batches */
+  sila2.org.silastandard.Integer SPenSamp = 5;  /* Sets the number of small penfill samples */
+  sila2.org.silastandard.Integer SPenBatch = 6;  /* Sets the number of small penfill batches */
+}
+
+/* Responses of ConfigureMainProgram */
+message ConfigureMainProgram_Responses {
+  sila2.org.silastandard.String ConfigureProgramResponse = 1;  /* Returns the response from the program. */
+}
+
+/* Intermediate responses of ConfigureMainProgram */
+message ConfigureMainProgram_IntermediateResponses {
+  sila2.org.silastandard.String CurrentStatus = 1;  /* The current status of the program */
+}
+
+/* Parameters for ConfigureDecapProgram */
+message ConfigureDecapProgram_Parameters {
+  sila2.org.silastandard.Integer LPenSamp = 1;  /* Sets the number of large penfill samples */
+  sila2.org.silastandard.Integer SPenSamp = 2;  /* Sets the number of small penfill samples */
+}
+
+/* Responses of ConfigureDecapProgram */
+message ConfigureDecapProgram_Responses {
+  sila2.org.silastandard.String ConfigureProgramResponse = 1;  /* Returns the response from the program. */
+}
+
+/* Intermediate responses of ConfigureDecapProgram */
+message ConfigureDecapProgram_IntermediateResponses {
+  sila2.org.silastandard.String CurrentStatus = 1;  /* The current status of the program */
+}
+
+/* Parameters for ConnectionStatus */
+message Subscribe_ConnectionStatus_Parameters {
+}
+
+/* Responses of ConnectionStatus */
+message Subscribe_ConnectionStatus_Responses {
+  sila2.org.silastandard.Boolean ConnectionStatus = 1;  /* Gets the connection status of the UR Robot */
+}

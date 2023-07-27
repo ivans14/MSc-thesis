@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message Handover {
+    message HandoverPosition_Struct{
+        string Position = 1;
+        int32 SubPosition = 2;
+}
+  repeated HandoverPosition_Struct HandoverPosition = 1;
+}

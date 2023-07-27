@@ -1,0 +1,109 @@
+syntax = "proto3";
+
+import "SiLAFramework.proto";
+
+package sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1;
+
+/* This feature (together with the "Labware Transfer Manipulator Controller" feature) provides commands to trigger the sub tasks of handing over a labware item, e.g. a microtiter plate, from one device to another in a standardized and generic way. For each labware transfer a defined sequence of commands has to be called on both involved devices to ensure the proper synchronization of all necessary transfer actions without unwanted physical interferences and to optimize the transfer performance regarding the execution time. Using the generic commands labware transfers between any arbitrary labware handling devices can be controlled (a robot device has not necessarily be involved). Generally a labware transfer is executed between a source and a destination device, where one of them is the active device (executing the actual handover actions) and the other one is the passive device. The "Labware Transfer Site Controller" feature is used to control the labware transfer on the side of the passive device to hand over a labware to or taking over a labware from an active device, which provides the "Labware Transfer Manipulator Controller" feature. If a device is capable to act either as the active or as the passive device of a labware transfer it must provide both features. The complete sequence of issued transfer commands on both devices is as follows: 1. Prior to the actual labware transfer a "Prepare For Output" command is sent to the source device to execute all necessary actions to be ready to release a labware item (e.g. open a tray) and simultaneously a "Prepare For Input" command is sent to the destination device to execute all necessary actions to be ready to receive a labware item (e.g. position the robotic arm near the tray of the source device). 2. When both devices have successfully finished their "Prepare For ..." command execution, the next commands are issued. 3a If the source device is the active device it will receive a "Put Labware" command to execute all necessary actions to put the labware item to the destination device. After the transfer has been finished successfully the destination device receives a "Labware Delivered" command, that triggers all actions to be done after the labware item has been transferred (e.g. close the opened tray). 3b If the destination device is the active device it will receive a "Get Labware" command to execute all necessary actions to get the labware from the source device (e.g. gripping the labware item). After that command has been finished successfully the source device receives a "Labware Removed" command, that triggers all actions to be done after the labware item has been transferred (e.g. close the opened tray). The command sequences for a passive source or destination device have always to be as follows: - for a passive source device: PrepareForOutput - LabwareRemoved - for a passive destination device: PrepareForInput - LabwareDelivered If the commands issued by the client differ from the respective command sequences a "Invalid Command Sequence" error will be raised. To address the location, where a labware item can be handed over to or from other devices, every device must provide one or more uniquely named positions (handover positions) via the "Available Handover Positions" property. A robot usually has got at least one handover position for each other device that it interacts with, whereas the most none-transport devices will only have one handover position. In case of a position array (e.g. a rack) the position within the array is specified via the sub position of the handover position, passed as index number. To address the positions within a device where the transferred labware item has to be stored at or is to be taken from (e.g. the storage positions inside an incubator), the internal position can be specified. Each device must provide the the number of available internal positions via the "Number Of Internal Positions" property. With the "Prepare For Input" command there is also information about the labware transferred, like labware type or a unique labware identifier (e.g. a barcode). */
+service LabwareTransferSiteFestoController {
+  /* Put the device into a state where it is ready to accept new labware at the specified handover position. */
+  rpc PrepareForInput (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.PrepareForInput_Parameters) returns (sila2.org.silastandard.CommandConfirmation) {}
+  /* Monitor the state of PrepareForInput */
+  rpc PrepareForInput_Info (sila2.org.silastandard.CommandExecutionUUID) returns (stream sila2.org.silastandard.ExecutionInfo) {}
+  /* Retrieve result of PrepareForInput */
+  rpc PrepareForInput_Result(sila2.org.silastandard.CommandExecutionUUID) returns (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.PrepareForInput_Responses) {}
+  /* Put the device into a state where it is ready to release the labware at the specified handover position. */
+  rpc PrepareForOutput (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.PrepareForOutput_Parameters) returns (sila2.org.silastandard.CommandConfirmation) {}
+  /* Monitor the state of PrepareForOutput */
+  rpc PrepareForOutput_Info (sila2.org.silastandard.CommandExecutionUUID) returns (stream sila2.org.silastandard.ExecutionInfo) {}
+  /* Retrieve result of PrepareForOutput */
+  rpc PrepareForOutput_Result(sila2.org.silastandard.CommandExecutionUUID) returns (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.PrepareForOutput_Responses) {}
+  /* Notifies the passive destination device of a labware item that has been transferred to it (sent after a "PrepareForInput" command). */
+  rpc LabwareDelivered (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.LabwareDelivered_Parameters) returns (sila2.org.silastandard.CommandConfirmation) {}
+  /* Monitor the state of LabwareDelivered */
+  rpc LabwareDelivered_Info (sila2.org.silastandard.CommandExecutionUUID) returns (stream sila2.org.silastandard.ExecutionInfo) {}
+  /* Retrieve result of LabwareDelivered */
+  rpc LabwareDelivered_Result(sila2.org.silastandard.CommandExecutionUUID) returns (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.LabwareDelivered_Responses) {}
+  /* Notifies the passive source device of a labware item that has been removed from it (sent after a "PrepareForOutput" command). */
+  rpc LabwareRemoved (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.LabwareRemoved_Parameters) returns (sila2.org.silastandard.CommandConfirmation) {}
+  /* Monitor the state of LabwareRemoved */
+  rpc LabwareRemoved_Info (sila2.org.silastandard.CommandExecutionUUID) returns (stream sila2.org.silastandard.ExecutionInfo) {}
+  /* Retrieve result of LabwareRemoved */
+  rpc LabwareRemoved_Result(sila2.org.silastandard.CommandExecutionUUID) returns (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.LabwareRemoved_Responses) {}
+  /* All handover positions of the device including the number of sub positions */
+  rpc Get_AvailableHandoverPositions (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.Get_AvailableHandoverPositions_Parameters) returns (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.Get_AvailableHandoverPositions_Responses) {}
+  /* The number of addressable internal positions of the device */
+  rpc Get_NumberOfInternalPositions (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.Get_NumberOfInternalPositions_Parameters) returns (sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.Get_NumberOfInternalPositions_Responses) {}
+}
+
+/* Specifies one of the possible positions of a device where labware items can be handed over. Can contain a sub position, e.g. for specifying a position in a rack. */
+message DataType_HandoverPosition {
+  message HandoverPosition_Struct {
+    sila2.org.silastandard.String Position = 1;  /* The name of the handover position (must be unique within the device). */
+    sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.DataType_PositionIndex SubPosition = 2;  /* The index of a sub position within a handover position or the number of sub positions repectively, e.g. for a rack. */
+  }
+  sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.DataType_HandoverPosition.HandoverPosition_Struct HandoverPosition = 1;  /* Specifies one of the possible positions of a device where labware items can be handed over. Can contain a sub position, e.g. for specifying a position in a rack. */
+}
+
+/* Specifies a position via an index number, starting with 1. */
+message DataType_PositionIndex {
+  sila2.org.silastandard.Integer PositionIndex = 1;  /* Specifies a position via an index number, starting with 1. */
+}
+
+/* Parameters for PrepareForInput */
+message PrepareForInput_Parameters {
+  sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.DataType_HandoverPosition HandoverPosition = 1;  /* Indicates the position where the labware will be handed over. */
+  sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.DataType_PositionIndex InternalPosition = 2;  /* Indicates the position where the labware will stored at inside the device, e.g. a storage position within an incubator. */
+  sila2.org.silastandard.String LabwareType = 3;  /* Specifies the type of the labware that will be handed over to transfer information about the labware that the device might need to access it correctly. */
+  sila2.org.silastandard.String LabwareUniqueID = 4;  /* The labwareUniqueID represents the unique identification of a labware in the controlling system. It is assigned by the system and stays the same for the whole process. */
+}
+
+/* Responses of PrepareForInput */
+message PrepareForInput_Responses {
+}
+
+/* Parameters for PrepareForOutput */
+message PrepareForOutput_Parameters {
+  sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.DataType_HandoverPosition HandoverPosition = 1;  /* Indicates the position where the labware will be handed over. */
+  sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.DataType_PositionIndex InternalPosition = 2;  /* Indicates the position where the labware will be retrieved from inside the device, e.g. a storage position within an incubator. */
+}
+
+/* Responses of PrepareForOutput */
+message PrepareForOutput_Responses {
+}
+
+/* Parameters for LabwareDelivered */
+message LabwareDelivered_Parameters {
+  sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.DataType_HandoverPosition HandoverPosition = 1;  /* Indicates the position the labware item has been delivered to. */
+}
+
+/* Responses of LabwareDelivered */
+message LabwareDelivered_Responses {
+}
+
+/* Parameters for LabwareRemoved */
+message LabwareRemoved_Parameters {
+  sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.DataType_HandoverPosition HandoverPosition = 1;  /* Indicates the position the labware has been removed from. */
+}
+
+/* Responses of LabwareRemoved */
+message LabwareRemoved_Responses {
+}
+
+/* Parameters for AvailableHandoverPositions */
+message Get_AvailableHandoverPositions_Parameters {
+}
+
+/* Responses of AvailableHandoverPositions */
+message Get_AvailableHandoverPositions_Responses {
+  repeated sila2.org.silastandard.labware.manipulation.labwaretransfersitefestocontroller.v1.DataType_HandoverPosition AvailableHandoverPositions = 1;  /* All handover positions of the device including the number of sub positions */
+}
+
+/* Parameters for NumberOfInternalPositions */
+message Get_NumberOfInternalPositions_Parameters {
+}
+
+/* Responses of NumberOfInternalPositions */
+message Get_NumberOfInternalPositions_Responses {
+  sila2.org.silastandard.Integer NumberOfInternalPositions = 1;  /* The number of addressable internal positions of the device */
+}

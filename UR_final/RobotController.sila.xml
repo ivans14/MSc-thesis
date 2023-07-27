@@ -1,0 +1,137 @@
+<Feature xmlns="http://www.sila-standard.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Category="core" FeatureVersion="1.0" MaturityLevel="Draft" Originator="org.silastandard" SiLA2Version="1.1" xsi:schemaLocation="http://www.sila-standard.org https://gitlab.com/SiLA2/sila_base/raw/master/schema/FeatureDefinition.xsd">
+    <Identifier>RobotController</Identifier>
+    <DisplayName>Robot Controller</DisplayName>
+    <Description>The Robot Controller feature provides commands to trigger 
+      the execution of the Penny Robot.
+    </Description>
+    <Command>
+      <Identifier>ConfigureMainProgram</Identifier>
+      <DisplayName>Configure Main Program</DisplayName>
+      <Description>Set the parameters for Penny program</Description>
+      <Observable>Yes</Observable>
+      <Parameter>
+          <Identifier>SyrSamp</Identifier>
+          <DisplayName>Syringe Samples</DisplayName>
+          <Description>Sets the number of syringe samples</Description>
+          <DataType>
+              <Basic>Integer</Basic>
+            </DataType>
+      </Parameter>
+      <Parameter>
+          <Identifier>SyrBatch</Identifier>
+          <DisplayName>Syringe Batches</DisplayName>
+          <Description>Sets the number of syringe batches</Description>
+          <DataType>
+              <Basic>Integer</Basic>
+            </DataType>
+      </Parameter>
+      <Parameter>
+          <Identifier>LPenSamp</Identifier>
+          <DisplayName>Large Penfill Samples</DisplayName>
+          <Description>Sets the number of large penfill samples</Description>
+          <DataType>
+              <Basic>Integer</Basic>
+            </DataType>
+      </Parameter>
+      <Parameter>
+          <Identifier>LPenBatch</Identifier>
+          <DisplayName>Large Penfill Batches</DisplayName>
+          <Description>Sets the number of large penfill batches</Description>
+          <DataType>
+              <Basic>Integer</Basic>
+            </DataType>
+      </Parameter>
+      <Parameter>
+          <Identifier>SPenSamp</Identifier>
+          <DisplayName>Small Penfill Samples</DisplayName>
+          <Description>Sets the number of small penfill samples</Description>
+          <DataType>
+              <Basic>Integer</Basic>
+            </DataType>
+      </Parameter>
+      <Parameter>
+          <Identifier>SPenBatch</Identifier>
+          <DisplayName>Small Penfill Batches</DisplayName>
+          <Description>Sets the number of small penfill batches</Description>
+          <DataType>
+              <Basic>Integer</Basic>
+            </DataType>
+      </Parameter>
+      <Response>
+        <Identifier>ConfigureProgramResponse</Identifier>
+        <DisplayName>Configure Program Respones</DisplayName>
+        <Description>Returns the response from the program.
+        </Description>
+        <DataType>
+          <Basic>String</Basic>
+        </DataType>
+      </Response>
+      <IntermediateResponse>
+        <Identifier>CurrentStatus</Identifier>
+        <DisplayName>Current Status</DisplayName>
+        <Description>The current status of the program</Description>
+          <DataType>
+            <Basic>String</Basic>
+          </DataType>
+      </IntermediateResponse>
+      <DefinedExecutionErrors>
+        <Identifier>InvalidParameters</Identifier>
+      </DefinedExecutionErrors>
+    </Command>
+    <Command>
+      <Identifier>ConfigureDecapProgram</Identifier>
+      <DisplayName>Configure Decapping Program</DisplayName>
+      <Description>Set the parameters for Penny program</Description>
+      <Observable>Yes</Observable>
+      <Parameter>
+          <Identifier>LPenSamp</Identifier>
+          <DisplayName>Large Penfill Samples</DisplayName>
+          <Description>Sets the number of large penfill samples</Description>
+          <DataType>
+              <Basic>Integer</Basic>
+            </DataType>
+      </Parameter>
+      <Parameter>
+          <Identifier>SPenSamp</Identifier>
+          <DisplayName>Small Penfill Samples</DisplayName>
+          <Description>Sets the number of small penfill samples</Description>
+          <DataType>
+              <Basic>Integer</Basic>
+            </DataType>
+      </Parameter>
+      <Response>
+        <Identifier>ConfigureProgramResponse</Identifier>
+        <DisplayName>Configure Program Respones</DisplayName>
+        <Description>Returns the response from the program.
+        </Description>
+        <DataType>
+          <Basic>String</Basic>
+        </DataType>
+      </Response>
+      <IntermediateResponse>
+        <Identifier>CurrentStatus</Identifier>
+        <DisplayName>Current Status</DisplayName>
+        <Description>The current status of the program</Description>
+          <DataType>
+            <Basic>String</Basic>
+          </DataType>
+      </IntermediateResponse>
+      <DefinedExecutionErrors>
+        <Identifier>InvalidParameters</Identifier>
+      </DefinedExecutionErrors>
+    </Command>
+    <Property>
+      <Identifier>ConnectionStatus</Identifier>
+      <DisplayName>Connection Status</DisplayName>
+      <Description>Gets the connection status of the UR Robot</Description>
+      <Observable>Yes</Observable>
+      <DataType>
+        <Basic>Boolean</Basic>
+      </DataType>
+    </Property>
+    <DefinedExecutionError>
+      <Identifier>InvalidParameters</Identifier>
+      <DisplayName>Invalid Parameters</DisplayName>
+      <Description>The provided parameters are not within the acceptable range</Description>
+    </DefinedExecutionError>
+  </Feature>
