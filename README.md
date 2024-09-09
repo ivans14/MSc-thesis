@@ -1,4 +1,4 @@
-# Universal Robots Arm Laboratory Vial Manipulation using SiLA Protocol
+# Optimization in automation design for laboratory liquid handling with a robotic arm
 
 ## Background
 The current laboratory process involves manually handling repetitive and monotonous tasks, such as decapping vials called Penfills and pouring their contents into larger vials. This decapping process is done using a specialized tool and is time-consuming and labor-intensive, impacting productivity.
